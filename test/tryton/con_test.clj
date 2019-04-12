@@ -3,7 +3,7 @@
             [clojure.core.async
              :as a
              :refer [<!!]]
-            [tryton.con :refer [login model-fields model-read]]))
+            [tryton.con :refer [login model-fields model-read model-search]]))
 
 (deftest login-test
   (testing "login succesfull"
@@ -51,3 +51,21 @@
                keys
                set
                ))))))
+
+(deftest model-search-test
+  (let [session (<!! (login "http://demo5.0.tryton.org" "demo5.0" "demo" "demo" "en"))]
+    (testing "load all search"
+      (is (= 1
+             (->>
+              (<!! (model-search session "party.party"))
+              :result
+              sort
+              first))))
+
+    (testing "load search one"
+      (is (= 1
+             (->>
+              (<!! (model-search session "party.party" [["id" "=" "1"]]))
+              :result
+              count))))
+    ))

@@ -1,6 +1,6 @@
 # cljs-tryton
 
-Clojure library to interact with tryton via jsonrpc.
+Clojure library to interact with Tryton via jsonrpc.
 
 ## Usage
 

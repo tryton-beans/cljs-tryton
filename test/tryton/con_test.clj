@@ -3,7 +3,14 @@
             [clojure.core.async
              :as a
              :refer [<!!]]
-            [tryton.con :refer [login model-fields model-read model-search]]))
+            [tryton.con :refer [login model-fields
+                                model-read model-search
+                                model-create model-write
+                                model-delete]]))
+
+(defn login-demo-user []
+  (<!! (login "http://demo5.0.tryton.org" "demo5.0" "demo" "demo" "en"))
+  )
 
 (deftest login-test
   (testing "login succesfull"
@@ -17,7 +24,7 @@
 
 (deftest model-fields-test
   (testing "get fields model"
-    (let [session (<!! (login "http://demo5.0.tryton.org" "demo5.0" "demo" "demo" "en"))]
+    (let [session (login-demo-user)]
       (is (= :account_payable
            (->>(<!!
                 (model-fields
@@ -32,7 +39,7 @@
 
 (deftest model-read-test
   (testing "read all fields"
-    (let [session (<!! (login "http://demo5.0.tryton.org" "demo5.0" "demo" "demo" "en"))]
+    (let [session (login-demo-user)]
       (is (=  "datetime"
               (->>
                (<!! (model-read session "party.party" [1]))
@@ -42,7 +49,7 @@
                :__class__)))
       ))
   (testing "read a field ; _timestamp and id are always read"
-    (let [session (<!! (login "http://demo5.0.tryton.org" "demo5.0" "demo" "demo" "en"))]
+    (let [session (login-demo-user)]
       (is (=  #{:id :create_date :_timestamp}
               (->>
                (<!! (model-read session "party.party" [1] ["create_date"]))
@@ -53,7 +60,7 @@
                ))))))
 
 (deftest model-search-test
-  (let [session (<!! (login "http://demo5.0.tryton.org" "demo5.0" "demo" "demo" "en"))]
+  (let [session (login-demo-user)]
     (testing "load all search"
       (is (= 1
              (->>
@@ -69,3 +76,31 @@
               :result
               count))))
     ))
+
+
+(deftest crud-test
+  (let [session (login-demo-user)]
+    (testing "crud"
+      ;; create a party
+      (let [
+            id
+            (->>
+             (<!! (model-create session "party.party" [{:code "test-cljs-tryton"}]))
+             :result
+             first)
+            party
+            (->> (<!! (model-read session "party.party" [id]))
+                 :result
+                 first)
+            written (<!! (model-write session "party.party" [party] {:name "update name"}))
+            party_after
+            (->> (<!! (model-read session "party.party" [id]))
+                 :result
+                 first)
+            delete (<!! (model-delete session "party.party" [id]))
+            ]
+        (is (= "update name" (:name party_after)))
+        (is (nil? (:result written)))
+        (is (nil? (:result delete)))))
+    ))
+

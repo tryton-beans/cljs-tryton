@@ -129,6 +129,12 @@
   ([session model-name domain offset limit]
    (call session (str "model." model-name ".search") [domain offset limit nil])))
 
+(defn model-search-count
+  ([session model-name]
+   (model-search-count session model-name []))
+  ([session model-name domain]
+   (call session (str "model." model-name ".search_count") [domain])))
+
 (defn model-create
   [session model-name fields]
   (call session (str "model." model-name ".create") [fields]))

@@ -6,7 +6,7 @@
             [tryton.con :refer [login model-fields
                                 model-read model-search
                                 model-create model-write
-                                model-delete]]))
+                                model-delete model-search-count]]))
 
 (defn login-demo-user []
   (<!! (login "http://demo5.0.tryton.org" "demo5.0" "demo" "demo" "en"))
@@ -83,6 +83,7 @@
     (testing "crud"
       ;; create a party
       (let [
+            i-count (:result (<!! (model-search-count session "party.party")))
             id
             (->>
              (<!! (model-create session "party.party" [{:code "test-cljs-tryton"}]))
@@ -98,7 +99,9 @@
                  :result
                  first)
             delete (<!! (model-delete session "party.party" [id]))
+            f-count (:result (<!! (model-search-count session "party.party")))
             ]
+        (is (= f-count i-count))
         (is (= "update name" (:name party_after)))
         (is (nil? (:result written)))
         (is (nil? (:result delete)))))

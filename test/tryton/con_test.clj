@@ -8,19 +8,22 @@
                                 model-create model-write
                                 model-delete model-search-count]]))
 
+(def tryton-url "http://demo5.0.tryton.org")
+(def tryton-db "demo5.0")
+
 (defn login-demo-user []
-  (<!! (login "http://demo5.0.tryton.org" "demo5.0" "demo" "demo" "en"))
+  (<!! (login tryton-url tryton-db "demo" "demo" "en"))
   )
 
 (deftest login-test
   (testing "login succesfull"
     (is (= "demo"
            (:login
-            (<!! (login "http://demo5.0.tryton.org" "demo5.0" "demo" "demo" "en"))))))
+            (<!! (login tryton-url tryton-db "demo" "demo" "en"))))))
   (testing "login error"
     (is (= 401
            (:error-status
-            (<!! (login "http://demo5.0.tryton.org" "demo5.0" "demo" "wrong password" "en")))))))
+            (<!! (login tryton-url tryton-db "demo" "wrong password" "en")))))))
 
 (deftest model-fields-test
   (testing "get fields model"

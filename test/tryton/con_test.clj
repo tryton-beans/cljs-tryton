@@ -1,4 +1,4 @@
-(ns tryton.core-test
+(ns tryton.con-test
   (:require [clojure.test :refer [testing is deftest]]
             [clojure.core.async
              :as a

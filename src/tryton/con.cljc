@@ -162,3 +162,10 @@
 (defn model-default
   [session model-name fields]
   (call session (str "model." model-name ".default_get") [fields]))
+
+(defn roe [chan]
+  "result or exception"
+  (let [ret (<!! chan)]
+    (if (and (contains? ret :result) (not (nil? (:result ret))))
+      (:result ret)
+      (throw (Exception. (str (:error-status ret) ":" (:error-text ret)))))))

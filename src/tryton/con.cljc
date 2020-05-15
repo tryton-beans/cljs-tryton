@@ -1,10 +1,10 @@
 (ns tryton.con
   (:require [ajax.core :refer [GET POST]]
             [clojure.data.codec.base64 :as b64]
+            [java-time :as jt]
             [clojure.core.async
-             :as a
              :refer [>! <! >!! <!! go chan buffer close! thread
-                     alts! alts!! timeout]]))
+                     alts! alts!! timeout] :as a]))
 
 (defn string-to-base64-string [original]
   (String. (b64/encode (.getBytes original)) "UTF-8"))
@@ -127,7 +127,9 @@
   ([session model-name domain]
    (model-search session model-name domain 0 1000))
   ([session model-name domain offset limit]
-   (call session (str "model." model-name ".search") [domain offset limit nil])))
+   (call session (str "model." model-name ".search") [domain offset limit nil]))
+  ([session model-name domain offset limit order]
+   (call session (str "model." model-name ".search") [domain offset limit order])))
 
 (defn model-search-count
   ([session model-name]
@@ -163,9 +165,59 @@
   [session model-name fields]
   (call session (str "model." model-name ".default_get") [fields]))
 
+
+(defn datetime->tryton
+  "return a map ready to send to tryton with the datetime value"
+  [datetime]
+  {:__class__ "datetime"
+   :year (jt/as datetime :year)
+   :month (jt/as datetime :month-of-year)
+   :day (jt/as datetime :day-of-month)
+   :hour (jt/as datetime :hour-of-day)
+   :minute (jt/as datetime :minute-of-hour)
+   :second (jt/as datetime :second-of-minute)
+   :microsecond (jt/as datetime :micro-of-second)
+   })
+
+
+(defn time->tryton
+  "return a map ready to send to tryton with the time value"
+  [sql-timestamp]
+  (when (not (nil? sql-timestamp))
+    (let [time (jt/local-date-time sql-timestamp)]
+      {:__class__ "time"
+       :hour (jt/as time :hour-of-day)
+       :minute (jt/as time :minute-of-hour)
+       :second (jt/as time :second-of-minute)
+       :microsecond (jt/as time :micro-of-second)
+       })))
+
+(defn date->tryton
+  "return a map ready to send to tryton with the time value"
+  [sql-timestamp]
+  (when (not (nil? sql-timestamp))
+    (let [datetime (jt/local-date-time sql-timestamp)]
+      {:__class__ "date"
+       :year (jt/as datetime :year)
+       :month (jt/as datetime :month-of-year)
+       :day (jt/as datetime :day-of-month)       
+       })))
+
+(defn decimal->tryton [decimal]
+  {:__class__ "Decimal" :decimal (format "%.2f" decimal)})
+
+
+(defn doe [chan]
+  "data or exception"
+  (let [ret (<!! chan)]
+    (if (contains? ret :error)
+      (throw (Exception. (str (:error-status ret) ":" (:error-text ret) "-" (:error ret))))
+      ret
+      )))
+
 (defn roe [chan]
   "result or exception"
   (let [ret (<!! chan)]
     (if (and (contains? ret :result) (not (nil? (:result ret))))
       (:result ret)
-      (throw (Exception. (str (:error-status ret) ":" (:error-text ret)))))))
+      (throw (Exception. (str (:error-status ret) ":" (:error-text ret) "-" (:error ret)))))))

@@ -8,16 +8,16 @@
                                 model-search-count
                                 model-write
                                 model-default
+                                model-fields
                                 doe
                                 roe]]
-            
             [mount.core :refer [defstate]]
             [config.core :refer [load-env]]
             [clojure.core.async :refer [<!!]]
             ))
 
 (defn new-session []
-  (let [conf (load-env)]
+  (let [conf (:tryton (load-env))]
     (<!! (if (= "4" (:version conf))
            (login4
             (:url conf)
@@ -36,6 +36,7 @@
 (defstate session :start (new-session))
 
 (defn set-preference-company-id [company-id]
+  (reset! (:context session) {:company company-id})
   (<!! (tryton.con/call session "model.res.user.set_preferences" [{:company company-id}])))
 
 (defn m-search
@@ -72,3 +73,6 @@
 
 (defn m-default [model fields]
   (roe (model-default session model fields)))
+
+(defn m-fields [model]
+  (roe (model-fields session model)))

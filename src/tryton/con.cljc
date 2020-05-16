@@ -20,7 +20,10 @@
    {:uri (str url "/" db "/")
     :login login
     :userid (first (:result response))
-    :session (second (:result response))}))
+    :session (second (:result response))
+    :context (atom {})
+    }
+   ))
 
 (defn login [url db login pass lang]
   "Login tryton 5+. Returns channel"
@@ -80,7 +83,7 @@
             }
            :params
            {:method method
-            :params (conj params (get session :context {}))
+            :params (conj params @(get session :context))
             :id 1} ;; id ++
            :handler (fn [res]
                       (go

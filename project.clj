@@ -25,6 +25,4 @@
                       :output-dir "target"
                       ;;; :source-map "target/main.js.map"
                       :optimizations :whitespace
-                      :pretty-print true}}
-    }}
-  )
+                      :pretty-print true}}}})

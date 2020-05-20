@@ -76,3 +76,19 @@
 
 (defn m-fields [model]
   (roe (model-fields session model)))
+
+(defn get-access [field-name]
+  (let [parts
+        (clojure.string/split (name field-name) #"\.")]
+    (if (= 1 (count parts))
+      [(keyword (first parts))]
+      (->> parts
+           (map #(str % "."))
+           (drop-last)
+           vec
+           (#(conj % (last parts)))
+           (mapv keyword)
+           ))))
+
+(defn get-t [t-map field]
+  (get-in t-map (get-access field)))

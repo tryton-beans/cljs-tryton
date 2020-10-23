@@ -5,6 +5,7 @@
                                 model-delete
                                 model-read
                                 model-search
+                                model-search-read
                                 model-search-count
                                 model-write
                                 model-default
@@ -46,6 +47,23 @@
    (roe (model-search session model search offset limit)))
   ([model search offset limit order]
    (roe (model-search session model search offset limit order))))
+
+(defn m-search-read
+  ([model search]
+   (roe (model-search-read session model search)))
+  ([model search offset limit]
+   (roe (model-search-read session model search offset limit)))
+  ([model search offset limit order]
+   (roe (model-search-read session model search offset limit order)))
+  ([model search offset limit order fields]
+   (roe (model-search-read session model search offset limit order fields))))
+
+(defn m-search-read-one
+  "return [] if none found. Or a [found-entity]" 
+  ([model search]
+   (roe (model-search-read session model search 0 1 [])))
+  ([model search fields]
+   (roe (model-search-read session model search 0 1 [] fields))))
 
 (defn m-search-count
   ([model]

@@ -16,8 +16,12 @@
             [clojure.core.async :refer [<!!]]
             ))
 
+(defn load-conf []
+  (:tryton (load-env))
+  )
+
 (defn new-session []
-  (let [conf (:tryton (load-env))]
+  (let [conf (load-conf)]
     (<!! (if (= "4" (:version conf))
            (login4
             (:url conf)
@@ -34,10 +38,6 @@
             )))))
 
 (defstate session :start (new-session))
-
-(defn set-preference-company-id [company-id]
-  (reset! (:context session) {:company company-id})
-  (<!! (tryton.con/call session "model.res.user.set_preferences" [{:company company-id}])))
 
 (defn m-search
   ([model search]
@@ -92,3 +92,30 @@
 
 (defn get-t [t-map field]
   (get-in t-map (get-access field)))
+
+
+(defn employee-user-company [company-id]
+  (first
+   (m-search "company.employee" [["AND"
+                                  ["company" "=" company-id]
+                                  ["id" "in"
+                                   (:employees
+                                    (first
+                                     (m-read "res.user"
+                                             [(:userid  session)]
+                                             ["employees"])))                      
+                                   ]]
+                                 ])))
+
+(defn set-preference-company-id
+  ([company-id]
+   (when (not (= company-id (:company @(:context session))))
+     (set-preference-company-id
+      company-id (employee-user-company company-id))))
+  ([company-id employee-id]
+   (when (not (= [company-id employee-id] ((juxt :company :employee) @(:context session))))
+     (reset! (:context session) {:company company-id :employee employee-id})
+     (<!! (tryton.con/call session
+                           "model.res.user.set_preferences"
+                           [{:company company-id :employee employee-id}]))))
+  )

@@ -174,17 +174,19 @@
   [session model-name ids]
   (call session (str "model." model-name ".delete") [ids]))
 
-;; it requires the original model read and the updates done
-(defn model-write
-  [session model-name models write]
-  (let [timestamps
-        (->>
+(defn get-timestamps-models [model-name models]
+  (->>
          models
          (map (fn [x] [(str model-name "," (:id x))
                        (:_timestamp x)]))
          flatten
-         (apply hash-map)
-         )
+         (apply hash-map)))
+
+;; it requires the original model read and the updates done
+(defn model-write
+  [session model-name models write]
+  (let [timestamps
+        (get-timestamps-models model-name models)
         ids (map :id models)
         ]
     (call (assoc session

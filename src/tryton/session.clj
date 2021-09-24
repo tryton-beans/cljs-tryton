@@ -10,6 +10,7 @@
                                 model-write
                                 model-default
                                 model-fields
+                                call
                                 doe
                                 roe]]
             [mount.core :refer [defstate]]
@@ -39,6 +40,14 @@
             )))))
 
 (defstate session :start (new-session))
+
+(defn m-call [model method params]
+  (doe (call session (str "model." model "." method) params)))
+
+(defn m-call-models [model-name method models]
+  (doe (call (assoc session
+                    :_timestamp (tryton.con/get-timestamps-models model-name models))
+             (str "model." model-name "." method) [(map :id models)])))
 
 (defn m-search
   ([model search]

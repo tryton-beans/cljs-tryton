@@ -1,11 +1,24 @@
 (ns tryton.sync)
 
 (defn add-domain-ts [domain time]
-  ["AND"
-   domain
-   ["create_date" ">" time]
-   ["write_date" ">" time]
-   ]
+  (if time
+    ["AND"
+     domain
+     ["create_date" ">" time]
+     ["write_date" ">" time]
+     ]
+    domain
+    )
+  )
+
+(defn m-fetch [data]
+  (tryton.session/m-search-read (:model data)
+                                (:domain data)
+                                0
+                                1000
+                                []
+                                (:fields data)
+                                )
   )
 
 (comment
@@ -39,18 +52,20 @@
   
   (java-time/local-date-time t "UTC")
   (java-time/as  (java-time/local-date-time) :year)
-  
-  (m-fetch
-            {:model "cargo.package"
-             :domain  (add-domain-ts ["AND" ["current_warehouse" "=" 61]
-                                      ["shipment.closed" "=" false]]
-                                     t)
-             :timestamp-next nil
-             :fields ["id" "identifier" "_timestamp" "shipment.closed" ]
-             :last-data []
-             :last-adds []
-             :last-updates []
-             })
+
+  (def f
+    (m-fetch
+     {:model "cargo.package"
+      :domain  (add-domain-ts ["AND" ["current_warehouse" "=" 61]
+                               ["shipment.closed" "=" false]]
+                              t)
+      :timestamp-next nil
+      :fields ["id" "identifier" "_timestamp" "shipment.closed" ]
+      :last-data []
+      :last-adds []
+      :last-updates []
+      }))
+  f
 
   true
 
@@ -70,11 +85,4 @@
   
   )
 
-(defn m-fetch [data]
-  (tryton.session/m-search-read (:model data)
-                                (:domain data)
-                                0
-                                1000
-                                
-                                (:fields data))
-  )
+

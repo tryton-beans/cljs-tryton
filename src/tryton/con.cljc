@@ -79,6 +79,37 @@
            })
     out))
 
+
+(defn logout [session]
+  (let [out (chan)]
+    (POST (:uri session)
+          {:headers
+           {"Authorization"
+            (:auth session)
+            }
+           :params
+           {:method "common.db.logout"
+            :params []
+            :id 0} ;; id ++
+           :handler (fn [res]
+                      (go
+                        (>! out res)
+                        (close! out)
+                        ))
+           :error-handler (fn [{:keys [status status-text]}]
+                            (go
+                              (>! out
+                                  {:error-status status
+                                   :error-text status-text
+                                   :result nil})
+                              (close! out)))
+           :format :json
+           :response-format :json
+           :keywords? true
+           })
+    out)
+  )
+
 (defn call [session method params]
   "json rpc call. Return channel"
   (let [out (chan)]

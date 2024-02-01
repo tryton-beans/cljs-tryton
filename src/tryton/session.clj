@@ -49,6 +49,11 @@
                     :_timestamp (tryton.con/get-timestamps-models model-name models))
              (str "model." model-name "." method) [(map :id models)])))
 
+(defn m-call-report [model-name method models]
+  (doe (call (assoc session
+                    :_timestamp (tryton.con/get-timestamps-models model-name models))
+             (str "report." model-name "." method) [(map :id models) {}])))
+
 (defn m-search
   ([model search]
    (roe (model-search session model search)))

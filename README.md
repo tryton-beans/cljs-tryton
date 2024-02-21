@@ -2,10 +2,6 @@
 
 Clojure library to interact with Tryton via jsonrpc.
 
-## Usage
-
-Check the tests to find out how to use the library.
-
 ## License
 
 Copyright © 2019

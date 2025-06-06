@@ -29,24 +29,38 @@ Add the following dependency to your =project.clj=:
 
 #+BEGIN_SRC clojure
 (require '[tryton.con :as con]
-         '[tryton.session :as session])
+         '[clojure.core.async :refer [<!]])
 
-;; Establish connection to Tryton server
-(def connection (con/connect {:host "localhost"
-                              :port 8000
-                              :database "demo"}))
+;; Login to Tryton server (returns a channel)
+(def session-chan (con/login "http://localhost:8000" "demo" "admin" "password" "en"))
 
-;; Create session with authentication
-(def user-session (session/login connection "admin" "password"))
+;; Get the session (in a go block for async)
+(go 
+  (let [session (<! session-chan)]
+    ;; Use session for further operations
+    ))
+
+;; For Tryton 4.0, use login4 instead:
+;; (def session-chan (con/login4 "http://localhost:8000" "demo" "admin" "password"))
 #+END_SRC
 
 ** Making RPC Calls
 
 #+BEGIN_SRC clojure
-;; Example: Fetch records from a model
-(session/call user-session "model.party.party" "search_read" 
-              [[["name" "ilike" "John"]]] 
-              {:fields ["name" "email"]})
+;; Example: Search for party records
+(go
+  (let [session (<! session-chan)
+        results (<! (con/model-search-read session "party.party" 
+                                          [["name" "ilike" "John"]] 
+                                          0 10 nil ["name" "email"]))]
+    (println (:result results))))
+
+;; Example: Direct RPC call
+(go
+  (let [session (<! session-chan)
+        response (<! (con/call session "model.party.party.search_read" 
+                              [[["name" "ilike" "John"]] 0 10 nil ["name" "email"]]))]
+    (println (:result response))))
 #+END_SRC
 
 * API Documentation

@@ -1,0 +1,92 @@
+#+TITLE: cljs-tryton
+#+AUTHOR: 
+#+DATE: 2019
+
+* Overview
+
+=cljs-tryton= is a Clojure/ClojureScript library that provides a convenient interface for interacting with [[https://www.tryton.org/][Tryton ERP]] systems via JSON-RPC. This library enables both Clojure and ClojureScript applications to communicate with Tryton servers, making it easy to integrate Tryton functionality into web applications, desktop tools, and server-side services.
+
+* Features
+
+- Cross-platform support (Clojure and ClojureScript)
+- JSON-RPC communication with Tryton servers
+- Session management and authentication
+- Synchronous and asynchronous operation support
+- Connection pooling and management
+- Type-safe data exchange
+
+* Installation
+
+Add the following dependency to your =project.clj=:
+
+#+BEGIN_SRC clojure
+[cljs-tryton "0.1.0-SNAPSHOT"]
+#+END_SRC
+
+* Usage
+
+** Basic Connection
+
+#+BEGIN_SRC clojure
+(require '[tryton.con :as con]
+         '[tryton.session :as session])
+
+;; Establish connection to Tryton server
+(def connection (con/connect {:host "localhost"
+                              :port 8000
+                              :database "demo"}))
+
+;; Create session with authentication
+(def user-session (session/login connection "admin" "password"))
+#+END_SRC
+
+** Making RPC Calls
+
+#+BEGIN_SRC clojure
+;; Example: Fetch records from a model
+(session/call user-session "model.party.party" "search_read" 
+              [[["name" "ilike" "John"]]] 
+              {:fields ["name" "email"]})
+#+END_SRC
+
+* API Documentation
+
+The library is organized into several namespaces:
+
+- =tryton.con= - Connection management
+- =tryton.session= - Session handling and authentication  
+- =tryton.sync= - Synchronization utilities
+
+* Requirements
+
+- Clojure 1.9+ or ClojureScript 1.10+
+- Access to a Tryton server with JSON-RPC enabled
+
+* Development
+
+** Running Tests
+
+#+BEGIN_SRC bash
+lein test
+#+END_SRC
+
+** Building
+
+#+BEGIN_SRC bash
+lein jar
+#+END_SRC
+
+* License
+
+Copyright © 2019
+
+This program and the accompanying materials are made available under the
+terms of the Eclipse Public License 2.0 which is available at
+http://www.eclipse.org/legal/epl-2.0.
+
+This Source Code may also be made available under the following Secondary
+Licenses when the conditions for such availability set forth in the Eclipse
+Public License, v. 2.0 are satisfied: GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or (at your
+option) any later version, with the GNU Classpath Exception which is available
+at https://www.gnu.org/software/classpath/license.html.

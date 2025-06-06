@@ -3,15 +3,15 @@
   :url "https://github.com/fgui/cljs-tryton"
   :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"
             :url "https://www.eclipse.org/legal/epl-2.0/"}
-  :dependencies [[org.clojure/clojure "1.11.1"]
-                 [org.clojure/clojurescript "1.11.60"] 
-                 [cljs-ajax "0.8.0"]
+  :dependencies [[org.clojure/clojure "1.12.0"]
+                 [org.clojure/clojurescript "1.12.42"] 
+                 [cljs-ajax "0.8.4"]
                  [org.clojure/data.codec "0.1.1"]
-                 [org.clojure/core.async "1.6.681"]
+                 [org.clojure/core.async "1.8.741"]
                  [datawalk "0.1.12"]
-                 [mount "0.1.17"]
-                 [clojure.java-time "1.3.0"]
-                 [yogthos/config "1.2.0"]
+                 [mount "0.1.23"]
+                 [clojure.java-time "1.4.3"]
+                 [yogthos/config "1.2.1"]
                  ]
   :plugins [[lein-doo "0.1.7"]
             [cider/cider-nrepl "0.38.1"]

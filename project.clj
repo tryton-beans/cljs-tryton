@@ -1,4 +1,4 @@
-(defproject cljs-tryton "0.1.3"
+(defproject cljs-tryton "0.1.4"
   :description "clj/cljs client library for tryton"
   :url "https://github.com/fgui/cljs-tryton"
   :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"

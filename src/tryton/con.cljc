@@ -37,7 +37,7 @@
     (POST (str url "/" db "/")
           {:params
            {:method "common.db.login"
-            :params [login {"password" pass} lang]
+            :params [login {"password" pass "client" "cljs"} lang]
             :id 0}
            :handler (fn [res]
                       (go (>! out (create-session url db login res))
